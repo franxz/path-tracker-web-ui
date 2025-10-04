@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  overflow-x: auto;
+}
+.button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  /* background: white; */
+  cursor: pointer;
+  min-width: 90px;
+}
+.button.active {
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.06) inset;
+  font-weight: 600;
+}
+.spacer {
+  flex: 1 1 auto;
+}
