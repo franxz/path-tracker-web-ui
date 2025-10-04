@@ -8,7 +8,9 @@ import type {
   NotaVistaComponent,
   VistaComponent,
 } from "../../../types/global";
+import type { WeekNotes } from "../../almanaque/types";
 import { NoteList } from "../../note/NoteList";
+import { Almanaque } from "../../almanaque/Almanaque";
 
 export const VistasManager: React.FC = () => {
   const { vistas, create, rename, remove, addComponent } = useVistas();
@@ -45,6 +47,33 @@ export const VistasManager: React.FC = () => {
     addComponent(active.id, component);
   };
 
+  // Helper para agregar un almanaque semanal
+  const handleAddAlmanaque = () => {
+    if (!active) return;
+    const title = prompt("Título del almanaque semanal");
+    if (!title) return;
+    // Inicializar weekNotes con los días de la semana
+    const days = [
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+      "Domingo",
+    ];
+    const weekNotes: WeekNotes = days.reduce((acc, d) => {
+      acc[d] = [];
+      return acc;
+    }, {} as WeekNotes);
+    const component: VistaComponent = {
+      id: crypto.randomUUID(),
+      type: "almanaque",
+      config: { title, weekNotes },
+    };
+    addComponent(active.id, component);
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -60,6 +89,9 @@ export const VistasManager: React.FC = () => {
             <>
               <button className={styles.smallBtn} onClick={handleAddNotas}>
                 + Lista de notas
+              </button>
+              <button className={styles.smallBtn} onClick={handleAddAlmanaque}>
+                + Almanaque semanal
               </button>
               <button
                 className={styles.smallBtn}
@@ -145,6 +177,72 @@ export const VistasManager: React.FC = () => {
                           notes: notas.map((n) =>
                             n.id === id ? { ...n, completed: !n.completed } : n
                           ),
+                        },
+                      })
+                    }
+                  />
+                );
+              }
+              if (comp.type === "almanaque") {
+                const weekNotes = comp.config.weekNotes as WeekNotes;
+                const title = comp.config.title as string;
+                return (
+                  <Almanaque
+                    key={comp.id}
+                    title={title}
+                    weekNotes={weekNotes}
+                    onCreate={(day: string, note) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          weekNotes: {
+                            ...weekNotes,
+                            [day]: [
+                              ...(weekNotes[day] || []),
+                              { ...note, id: crypto.randomUUID() },
+                            ],
+                          },
+                        },
+                      })
+                    }
+                    onUpdate={(day: string, id: string, changes) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          weekNotes: {
+                            ...weekNotes,
+                            [day]: (weekNotes[day] || []).map((n: Nota) =>
+                              n.id === id ? { ...n, ...changes } : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                    onRemove={(day: string, id: string) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          weekNotes: {
+                            ...weekNotes,
+                            [day]: (weekNotes[day] || []).filter((n: Nota) => n.id !== id),
+                          },
+                        },
+                      })
+                    }
+                    onToggle={(day: string, id: string) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          weekNotes: {
+                            ...weekNotes,
+                            [day]: (weekNotes[day] || []).map((n: Nota) =>
+                              n.id === id ? { ...n, completed: !n.completed } : n
+                            ),
+                          },
                         },
                       })
                     }
