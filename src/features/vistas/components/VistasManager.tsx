@@ -408,6 +408,15 @@ export const VistasManager: React.FC = () => {
                 const now = new Date();
                 const year = now.getFullYear();
                 const month = now.getMonth() + 1;
+                // Buscar todos los pathtrackers de la vista actual
+                const availablePathTrackers = (active.components || [])
+                  .filter(c => c.type === "pathtracker")
+                  .map(c => ({
+                    id: c.id,
+                    title: c.config.title as string,
+                    // Unir todas las tareas de todos los paths
+                    tasks: Object.values((c.config.paths as Record<string, PathTask[]>)).flat(),
+                  }));
                 return (
                   <AlmanaqueMensual
                     key={comp.id}
@@ -415,6 +424,7 @@ export const VistasManager: React.FC = () => {
                     year={year}
                     month={month}
                     monthTasks={monthTasks}
+                    availablePathTrackers={availablePathTrackers}
                     onCreate={(day: number, task) =>
                       addComponent(active.id, {
                         ...comp,
