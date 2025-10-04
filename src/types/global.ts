@@ -6,7 +6,9 @@ export type EntityId = string;
 /** Una nota simple de texto */
 export interface Nota {
   id: EntityId;
-  text: string;
+  title: string;
+  content?: string;
+  completed: boolean;
   createdAt: string;   // ISO string
   updatedAt?: string;
   // metadata extensible
@@ -22,4 +24,8 @@ export interface VistaComponent {
   id: EntityId;
   type: ComponentType;
   config: Record<string, unknown>; // configurable según el tipo
+}
+
+export interface NotaVistaComponent extends VistaComponent {
+  config: {title:string, notes: Nota[]}
 }

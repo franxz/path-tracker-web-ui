@@ -1,7 +1,3 @@
-export interface Note {
-  id: string;
-  title: string;
-  content?: string;
-  completed: boolean;
-  date?: string;
-}
+import type { Nota } from "../../types/global";
+
+export interface Note extends Nota {};
