@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Note } from "./types";
 import styles from "./NoteList.module.css";
 import { NoteItem } from "./NoteItem";

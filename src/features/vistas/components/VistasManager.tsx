@@ -13,6 +13,7 @@ import { NoteList } from "../../note/NoteList";
 import { Almanaque } from "../../almanaque/Almanaque";
 import { PathTracker } from "../../PathTracker/PathTracker";
 import type { PathTask } from "../../PathTracker/types";
+import { AlmanaqueMensual } from "../../almanaque/AlmanaqueMensual";
 
 export const VistasManager: React.FC = () => {
   const { vistas, create, rename, remove, addComponent } = useVistas();
@@ -91,6 +92,25 @@ export const VistasManager: React.FC = () => {
     addComponent(active.id, component);
   };
 
+  // Helper para agregar un almanaque mensual
+  const handleAddAlmanaqueMensual = () => {
+    if (!active) return;
+    const title = prompt("Título del almanaque mensual");
+    if (!title) return;
+    // Inicializar monthTasks con los días del mes (1-31)
+    const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+    const monthTasks: Record<string, PathTask[]> = days.reduce((acc, d) => {
+      acc[d] = [];
+      return acc;
+    }, {} as Record<string, PathTask[]>);
+    const component: VistaComponent = {
+      id: crypto.randomUUID(),
+      type: "almanaquemensual",
+      config: { title, monthTasks },
+    };
+    addComponent(active.id, component);
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -115,6 +135,12 @@ export const VistasManager: React.FC = () => {
                 onClick={handleAddPathTracker}
               >
                 + Path Tracker
+              </button>
+              <button
+                className={styles.smallBtn}
+                onClick={handleAddAlmanaqueMensual}
+              >
+                + Almanaque mensual
               </button>
               <button
                 className={styles.smallBtn}
@@ -359,6 +385,99 @@ export const VistasManager: React.FC = () => {
                           paths: {
                             ...paths,
                             [path]: (paths[path] || []).map((n: PathTask) =>
+                              n.id === id
+                                ? {
+                                    ...n,
+                                    executions: [
+                                      ...(n.executions || []),
+                                      { date: new Date().toISOString(), notes: note },
+                                    ],
+                                  }
+                                : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                  />
+                );
+              }
+              if (comp.type === "almanaquemensual") {
+                const monthTasks = comp.config.monthTasks as Record<string, PathTask[]>;
+                const title = comp.config.title as string;
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                return (
+                  <AlmanaqueMensual
+                    key={comp.id}
+                    title={title}
+                    year={year}
+                    month={month}
+                    monthTasks={monthTasks}
+                    onCreate={(day: number, task) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          monthTasks: {
+                            ...monthTasks,
+                            [day]: [
+                              ...(monthTasks[day] || []),
+                              { ...task, id: crypto.randomUUID(), executions: [] },
+                            ],
+                          },
+                        },
+                      })
+                    }
+                    onUpdate={(day: number, id: string, changes) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          monthTasks: {
+                            ...monthTasks,
+                            [day]: (monthTasks[day] || []).map((n: PathTask) =>
+                              n.id === id ? { ...n, ...changes } : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                    onRemove={(day: number, id: string) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          monthTasks: {
+                            ...monthTasks,
+                            [day]: (monthTasks[day] || []).filter((n: PathTask) => n.id !== id),
+                          },
+                        },
+                      })
+                    }
+                    onToggle={(day: number, id: string) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          monthTasks: {
+                            ...monthTasks,
+                            [day]: (monthTasks[day] || []).map((n: PathTask) =>
+                              n.id === id ? { ...n, completed: !n.completed } : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                    onTrackExecution={(day: number, id: string, note?: string) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          monthTasks: {
+                            ...monthTasks,
+                            [day]: (monthTasks[day] || []).map((n: PathTask) =>
                               n.id === id
                                 ? {
                                     ...n,

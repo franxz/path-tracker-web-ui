@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styles from "./PathTracker.module.css";
 import type { PathTask } from "./types";
-import { NoteItem } from "../note/NoteItem";
+import { TaskItemWithTrack } from "./TaskItemWithTrack";
+
 import { NewNoteRow } from "../note/NewNoteRow";
 
 interface PathTrackerProps {
@@ -81,37 +82,16 @@ export function PathTracker({
                 <p className={styles.empty}>Sin tareas</p>
               ) : (
                 paths[path].map((task) => (
-                  <div key={task.id} className={styles.taskItem}>
-                    <NoteItem
-                      note={task}
-                      onRemove={() => onRemoveTask(path, task.id)}
-                      onUpdate={(_id, changes) => onUpdateTask(path, task.id, changes)}
-                      onToggle={() => onToggleTask(path, task.id)}
-                    />
-                    <div className={styles.trackRow}>
-                      <button
-                        className={styles.button}
-                        onClick={() => {
-                          const note = prompt("Notas sobre la ejecución (opcional)");
-                          onTrackExecution(path, task.id, note || undefined);
-                        }}
-                      >
-                        Registrar ejecución
-                      </button>
-                      <span className={styles.execCount}>
-                        {task.executions?.length || 0} ejecuciones
-                      </span>
-                    </div>
-                    {task.executions && task.executions.length > 0 && (
-                      <ul className={styles.execList}>
-                        {task.executions.map((e, i) => (
-                          <li key={i}>
-                            {new Date(e.date).toLocaleString()} {e.notes && `- ${e.notes}`}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  <TaskItemWithTrack
+                    key={task.id}
+                    task={task}
+                    path={path}
+                    onRemove={onRemoveTask}
+                    onUpdate={onUpdateTask}
+                    onToggle={onToggleTask}
+                    onTrackExecution={onTrackExecution}
+                    showExecutions={true}
+                  />
                 ))
               )}
             </div>

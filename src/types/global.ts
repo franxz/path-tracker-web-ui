@@ -9,7 +9,7 @@ export interface Nota {
   title: string;
   content?: string;
   completed: boolean;
-  createdAt: string;   // ISO string
+  createdAt: string; // ISO string
   updatedAt?: string;
   // metadata extensible
   tags?: string[];
@@ -17,15 +17,50 @@ export interface Nota {
 }
 
 /** Tipos para componentes configurables */
-export type ComponentType = 'notas' | 'almanaque' | 'pathtracker';
+export type ComponentType =
+  | "notas"
+  | "almanaque"
+  | "pathtracker"
+  | "almanaquemensual";
 
 /** Una instancia de componente dentro de una vista */
-export interface VistaComponent {
+export interface VistaComponentBase {
   id: EntityId;
   type: ComponentType;
-  config: Record<string, unknown>; // configurable según el tipo
+  config: Record<string, unknown>;
 }
 
-export interface NotaVistaComponent extends VistaComponent {
-  config: {title:string, notes: Nota[]}
+export interface NotaVistaComponent extends VistaComponentBase {
+  type: "notas";
+  config: { title: string; notes: Nota[] };
 }
+
+export interface AlmanaqueVistaComponent extends VistaComponentBase {
+  type: "almanaque";
+  config: { title: string; weekNotes: Record<string, Nota[]> };
+}
+
+export interface PathTrackerVistaComponent extends VistaComponentBase {
+  type: "pathtracker";
+  config: {
+    title: string;
+    paths: Record<string, import("../features/PathTracker/types").PathTask[]>;
+  };
+}
+
+export interface AlmanaqueMensualVistaComponent extends VistaComponentBase {
+  type: "almanaquemensual";
+  config: {
+    title: string;
+    monthTasks: Record<
+      string,
+      import("../features/PathTracker/types").PathTask[]
+    >;
+  };
+}
+
+export type VistaComponent =
+  | NotaVistaComponent
+  | AlmanaqueVistaComponent
+  | PathTrackerVistaComponent
+  | AlmanaqueMensualVistaComponent;

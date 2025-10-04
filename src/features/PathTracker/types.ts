@@ -5,6 +5,8 @@ export interface PathTask extends Nota {
     date: string; // ISO string
     notes?: string;
   }>;
+  /** Fechas planeadas en formato YYYY-MM-DD */
+  plannedDays?: string[];
 }
 
 export type PathTasks = Record<string, PathTask[]>; // key: path name
