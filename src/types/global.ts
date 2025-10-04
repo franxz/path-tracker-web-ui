@@ -17,7 +17,7 @@ export interface Nota {
 }
 
 /** Tipos para componentes configurables */
-export type ComponentType = 'notas' | 'almanaque';
+export type ComponentType = 'notas' | 'almanaque' | 'pathtracker';
 
 /** Una instancia de componente dentro de una vista */
 export interface VistaComponent {

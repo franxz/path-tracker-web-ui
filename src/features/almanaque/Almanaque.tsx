@@ -49,7 +49,7 @@ export function Almanaque({
 
   return (
     <div className={styles.wrapper}>
-      <h2 className={styles.title}>{title}</h2>
+      {/* <h2 className={styles.title}>{title}</h2> */}
       <div className={styles.weekGrid}>
         {DAYS.map((day) => (
           <div key={day} className={styles.dayCol}>

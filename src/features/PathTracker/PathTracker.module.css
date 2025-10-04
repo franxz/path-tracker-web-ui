@@ -1,0 +1,79 @@
+.wrapper {
+  background: #e0ffe0;
+  border: 3px solid #008000;
+  box-shadow: 4px 4px 0px #080;
+  padding: 12px;
+  margin: 16px 0;
+  font-family: "Arial Black", sans-serif;
+  color: #003300;
+  container-type: inline-size;
+}
+
+.title {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  background: #baffba;
+  padding: 4px 8px;
+  border: 2px solid #008000;
+  display: inline-block;
+}
+
+.addPathRow {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.input {
+  flex: 1;
+  border: 2px solid #008000;
+  padding: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.button {
+  background: #00ff99;
+  border: 2px solid #008000;
+  padding: 4px 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.1s ease-in;
+}
+
+.button:hover {
+  background: #008000;
+  color: #fff;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #080;
+}
+
+.pathsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.pathCol {
+  background: #fff;
+  border-radius: 8px;
+  border: 2px solid #008000;
+  padding: 8px;
+  box-shadow: 2px 2px 0px #080;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pathTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #008000;
+  margin-bottom: 0.5rem;
+}
+
+.empty {
+  color: #888;
+  font-size: 0.95rem;
+  text-align: center;
+}

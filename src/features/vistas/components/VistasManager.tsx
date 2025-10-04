@@ -11,6 +11,8 @@ import type {
 import type { WeekNotes } from "../../almanaque/types";
 import { NoteList } from "../../note/NoteList";
 import { Almanaque } from "../../almanaque/Almanaque";
+import { PathTracker } from "../../PathTracker/PathTracker";
+import type { PathTask } from "../../PathTracker/types";
 
 export const VistasManager: React.FC = () => {
   const { vistas, create, rename, remove, addComponent } = useVistas();
@@ -74,6 +76,21 @@ export const VistasManager: React.FC = () => {
     addComponent(active.id, component);
   };
 
+  // Helper para agregar un path tracker
+  const handleAddPathTracker = () => {
+    if (!active) return;
+    const title = prompt("Título del Path Tracker");
+    if (!title) return;
+    // Inicializar paths vacío
+    const paths: Record<string, PathTask[]> = {};
+    const component: VistaComponent = {
+      id: crypto.randomUUID(),
+      type: "pathtracker",
+      config: { title, paths },
+    };
+    addComponent(active.id, component);
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -92,6 +109,12 @@ export const VistasManager: React.FC = () => {
               </button>
               <button className={styles.smallBtn} onClick={handleAddAlmanaque}>
                 + Almanaque semanal
+              </button>
+              <button
+                className={styles.smallBtn}
+                onClick={handleAddPathTracker}
+              >
+                + Path Tracker
               </button>
               <button
                 className={styles.smallBtn}
@@ -227,7 +250,9 @@ export const VistasManager: React.FC = () => {
                           ...comp.config,
                           weekNotes: {
                             ...weekNotes,
-                            [day]: (weekNotes[day] || []).filter((n: Nota) => n.id !== id),
+                            [day]: (weekNotes[day] || []).filter(
+                              (n: Nota) => n.id !== id
+                            ),
                           },
                         },
                       })
@@ -240,7 +265,109 @@ export const VistasManager: React.FC = () => {
                           weekNotes: {
                             ...weekNotes,
                             [day]: (weekNotes[day] || []).map((n: Nota) =>
+                              n.id === id
+                                ? { ...n, completed: !n.completed }
+                                : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                  />
+                );
+              }
+              if (comp.type === "pathtracker") {
+                const paths = comp.config.paths as Record<string, PathTask[]>;
+                const title = comp.config.title as string;
+                return (
+                  <PathTracker
+                    key={comp.id}
+                    title={title}
+                    paths={paths}
+                    onCreatePath={(path) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: {
+                            ...paths,
+                            [path]: [],
+                          },
+                        },
+                      })
+                    }
+                    onCreateTask={(path, task) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: {
+                            ...paths,
+                            [path]: [
+                              ...(paths[path] || []),
+                              { ...task, id: crypto.randomUUID(), executions: [] },
+                            ],
+                          },
+                        },
+                      })
+                    }
+                    onUpdateTask={(path, id, changes) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: {
+                            ...paths,
+                            [path]: (paths[path] || []).map((n: PathTask) =>
+                              n.id === id ? { ...n, ...changes } : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                    onRemoveTask={(path, id) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: {
+                            ...paths,
+                            [path]: (paths[path] || []).filter((n: PathTask) => n.id !== id),
+                          },
+                        },
+                      })
+                    }
+                    onToggleTask={(path, id) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: {
+                            ...paths,
+                            [path]: (paths[path] || []).map((n: PathTask) =>
                               n.id === id ? { ...n, completed: !n.completed } : n
+                            ),
+                          },
+                        },
+                      })
+                    }
+                    onTrackExecution={(path, id, note) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: {
+                            ...paths,
+                            [path]: (paths[path] || []).map((n: PathTask) =>
+                              n.id === id
+                                ? {
+                                    ...n,
+                                    executions: [
+                                      ...(n.executions || []),
+                                      { date: new Date().toISOString(), notes: note },
+                                    ],
+                                  }
+                                : n
                             ),
                           },
                         },
