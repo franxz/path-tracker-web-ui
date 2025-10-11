@@ -56,6 +56,8 @@ export interface AlmanaqueMensualVistaComponent extends VistaComponentBase {
       string,
       import("../features/PathTracker/types").PathTask[]
     >;
+    mode?: "standalone" | "connected";
+    selectedPathTrackerId?: string;
   };
 }
 

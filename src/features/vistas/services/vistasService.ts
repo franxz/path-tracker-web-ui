@@ -98,7 +98,7 @@ export const vistasService = {
     if (cIdx === -1) return null;
 
     const components = [...(vista.components || [])];
-    components[cIdx] = { ...components[cIdx], config: newConfig };
+    components[cIdx] = { ...components[cIdx], config: newConfig as any };
 
     const updated: Vista = { ...vista, components };
     vistas[vIdx] = updated;
@@ -126,7 +126,7 @@ export const vistasService = {
     const newConfig = { ...comp.config, ...patch };
 
     const components = [...(vista.components || [])];
-    components[cIdx] = { ...comp, config: newConfig };
+    components[cIdx] = { ...comp, config: newConfig as any };
 
     const updated: Vista = { ...vista, components };
     vistas[vIdx] = updated;

@@ -434,6 +434,26 @@ export const VistasManager: React.FC = () => {
                     month={month}
                     monthTasks={monthTasks}
                     availablePathTrackers={availablePathTrackers}
+                    mode={comp.config.mode}
+                    selectedPathTrackerId={comp.config.selectedPathTrackerId}
+                    onModeChange={(newMode) => {
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          mode: newMode,
+                        },
+                      });
+                    }}
+                    onSelectedPathTrackerIdChange={(newId) => {
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          selectedPathTrackerId: newId,
+                        },
+                      });
+                    }}
                     onCreate={(day: number, task) =>
                       addComponent(active.id, {
                         ...comp,

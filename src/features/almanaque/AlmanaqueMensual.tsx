@@ -30,6 +30,10 @@ interface AlmanaqueMensualProps {
   onTrackExecution: (day: number, id: string, note?: string) => void;
   title?: string;
   availablePathTrackers?: { id: string; title: string; tasks: PathTask[] }[];
+  mode?: "standalone" | "connected";
+  selectedPathTrackerId?: string;
+  onModeChange?: (mode: "standalone" | "connected") => void;
+  onSelectedPathTrackerIdChange?: (id: string) => void;
 }
 
 export function AlmanaqueMensual({
@@ -43,10 +47,15 @@ export function AlmanaqueMensual({
   onTrackExecution,
   title = "Almanaque mensual",
   availablePathTrackers = [],
+  mode: controlledMode,
+  selectedPathTrackerId: controlledSelectedPathTrackerId,
+  onModeChange,
+  onSelectedPathTrackerIdChange,
 }: AlmanaqueMensualProps) {
-  const [mode, setMode] = useState<"standalone" | "connected">("standalone");
-  const [selectedPathTrackerId, setSelectedPathTrackerId] =
-    useState<string>("");
+  const [internalMode, setInternalMode] = useState<"standalone" | "connected">("standalone");
+  const [internalSelectedPathTrackerId, setInternalSelectedPathTrackerId] = useState<string>("");
+  const mode = controlledMode !== undefined ? controlledMode : internalMode;
+  const selectedPathTrackerId = controlledSelectedPathTrackerId !== undefined ? controlledSelectedPathTrackerId : internalSelectedPathTrackerId;
 
   // Si connected, tasks = tasks del pathtracker seleccionado
   const connectedTasks = useMemo(() => {
@@ -88,7 +97,14 @@ export function AlmanaqueMensual({
           <b>Modo:</b>
           <select
             value={mode}
-            onChange={(e) => setMode(e.target.value as any)}
+            onChange={(e) => {
+              const newMode = e.target.value as "standalone" | "connected";
+              if (onModeChange) {
+                onModeChange(newMode);
+              } else {
+                setInternalMode(newMode);
+              }
+            }}
             style={{ marginLeft: 6 }}
           >
             <option value="standalone">Standalone</option>
@@ -100,7 +116,13 @@ export function AlmanaqueMensual({
             <b>PathTracker:</b>
             <select
               value={selectedPathTrackerId}
-              onChange={(e) => setSelectedPathTrackerId(e.target.value)}
+              onChange={(e) => {
+                if (onSelectedPathTrackerIdChange) {
+                  onSelectedPathTrackerIdChange(e.target.value);
+                } else {
+                  setInternalSelectedPathTrackerId(e.target.value);
+                }
+              }}
               style={{ marginLeft: 6 }}
             >
               <option value="">-- Selecciona --</option>
