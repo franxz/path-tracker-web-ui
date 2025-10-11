@@ -64,3 +64,15 @@ export type VistaComponent =
   | AlmanaqueVistaComponent
   | PathTrackerVistaComponent
   | AlmanaqueMensualVistaComponent;
+
+export type ColorTheme =
+  | "cyan"
+  | "blue"
+  | "green"
+  | "red"
+  | "orange"
+  | "purple"
+  | "pink"
+  | "teal"
+  | "yellow"
+  | "gray";

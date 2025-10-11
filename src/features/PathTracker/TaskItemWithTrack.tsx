@@ -13,7 +13,6 @@ interface TaskItemWithTrackProps {
   showExecutions?: boolean;
   showPlanningControls?: boolean;
 }
-
 export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
   task,
   path,
@@ -61,6 +60,7 @@ export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
         onUpdate={(_id, changes) => onUpdate(path, task.id, changes)}
         onToggle={() => onToggle(path, task.id)}
         hideControls={showPlanningControls === false}
+        colorTheme={task.colorTheme}
       />
       {showPlanningControls && (
         <div className={styles.trackRow}>
@@ -96,7 +96,6 @@ export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
           )}
         </div>
       )}
-      {/* Mostrar planeaciones actuales y permitir quitarlas */}
       {showPlanningControls &&
         Array.isArray(task.plannedDays) &&
         task.plannedDays.length > 0 && (

@@ -351,6 +351,15 @@ export const VistasManager: React.FC = () => {
                         },
                       })
                     }
+                    onUpdateAllPaths={(updatedPaths) =>
+                      addComponent(active.id, {
+                        ...comp,
+                        config: {
+                          ...comp.config,
+                          paths: updatedPaths,
+                        },
+                      })
+                    }
                     onRemoveTask={(path, id) =>
                       addComponent(active.id, {
                         ...comp,

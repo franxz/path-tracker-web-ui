@@ -47,19 +47,21 @@ export function NoteList({
         onSubmit={submit}
       />
 
-      {notes.length === 0 ? (
-        <p>No hay notas</p>
-      ) : (
-        notes.map((n) => (
-          <NoteItem
-            key={n.id}
-            note={n}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-            onToggle={onToggle}
-          />
-        ))
-      )}
+      <div className={styles.noteList}>
+        {notes.length === 0 ? (
+          <p>No hay notas</p>
+        ) : (
+          notes.map((n) => (
+            <NoteItem
+              key={n.id}
+              note={n}
+              onRemove={onRemove}
+              onUpdate={onUpdate}
+              onToggle={onToggle}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }
