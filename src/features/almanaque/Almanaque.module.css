@@ -13,11 +13,11 @@
 .weekGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1rem;
+  gap: 0.2rem;
 }
 
 .dayCol {
-  background: #f8f9fa;
+  background: #838b93;
   border-radius: 8px;
   padding: 0.5rem;
   min-width: 150px;
@@ -32,7 +32,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: green;
+  color: rgb(255, 224, 100);
 }
 
 .newNoteRow {
@@ -93,7 +93,25 @@
 }
 
 .empty {
-  color: #888;
+  color: #333;
   font-size: 0.95rem;
   text-align: center;
+}
+
+.addBtn {
+  position: relative;
+  left:110px; top: -45px;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 100%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease-in-out;
+  height: 32px;
+  width: 32px;
+}
+
+.addBtn:hover {
+  background: #1565c0;
 }

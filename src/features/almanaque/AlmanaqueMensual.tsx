@@ -58,6 +58,8 @@ export function AlmanaqueMensual({
   }, [mode, selectedPathTrackerId, availablePathTrackers]);
   const [newTitles, setNewTitles] = useState<Record<number, string>>({});
   const [newContents, setNewContents] = useState<Record<number, string>>({});
+  // Estado para mostrar/ocultar el input de nueva nota por día
+  const [showNewRow, setShowNewRow] = useState<Record<number, boolean>>({});
 
   // Días válidos para el mes
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -177,17 +179,56 @@ export function AlmanaqueMensual({
             <div key={day} className={styles.dayCol}>
               <h3 className={styles.dayTitle}>Día {day}</h3>
               {mode === "standalone" && (
-                <NewNoteRow
-                  title={newTitles[day] || ""}
-                  content={newContents[day] || ""}
-                  onTitleChange={(v) =>
-                    setNewTitles((s) => ({ ...s, [day]: v }))
-                  }
-                  onContentChange={(v) =>
-                    setNewContents((s) => ({ ...s, [day]: v }))
-                  }
-                  onSubmit={() => handleCreate(day)}
-                />
+                showNewRow[day] ? (
+                  <div style={{ position: "relative" }}>
+                    <button
+                      type="button"
+                      aria-label="Cancelar"
+                      style={{
+                        position: "absolute",
+                        right: 0,
+                        top: -50,
+                        zIndex: 2,
+                        background: "black",
+                        borderRadius: "100%",
+                        width: 32,
+                        padding: 8,
+                        textAlign: "center",
+                        height: 32,
+                        lineHeight: "16px",
+                        border: "none",
+                        fontSize: 18,
+                        cursor: "pointer",
+                        color: "red"
+                      }}
+                      onClick={() => setShowNewRow((s) => ({ ...s, [day]: false }))}
+                    >
+                      ×
+                    </button>
+                    <NewNoteRow
+                      title={newTitles[day] || ""}
+                      content={newContents[day] || ""}
+                      onTitleChange={(v) =>
+                        setNewTitles((s) => ({ ...s, [day]: v }))
+                      }
+                      onContentChange={(v) =>
+                        setNewContents((s) => ({ ...s, [day]: v }))
+                      }
+                      onSubmit={() => {
+                        handleCreate(day);
+                        setShowNewRow((s) => ({ ...s, [day]: false }));
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    className={styles.addBtn}
+                    style={{ marginBottom: 6 }}
+                    onClick={() => setShowNewRow((s) => ({ ...s, [day]: true }))}
+                  >
+                    +
+                  </button>
+                )
               )}
               {items}
             </div>
