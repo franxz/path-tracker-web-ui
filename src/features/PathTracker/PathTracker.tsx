@@ -30,7 +30,8 @@ export function PathTracker({
   onTrackExecution,
   title = "Path Tracker",
 }: PathTrackerProps) {
-  const [colorTheme, setColorTheme] = useState<ColorTheme>("cyan");
+  // Estado de color por path
+  const [colorThemesByPath, setColorThemesByPath] = useState<Record<string, ColorTheme>>({});
   const [newPath, setNewPath] = useState("");
   const [newTitles, setNewTitles] = useState<Record<string, string>>({});
   const [newContents, setNewContents] = useState<Record<string, string>>({});
@@ -56,37 +57,24 @@ export function PathTracker({
   };
 
   // Cuando cambia el color, actualizar todos los tasks existentes
-  const handleColorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newColor = e.target.value as ColorTheme;
-    setColorTheme(newColor);
+  // Cambia el color solo de un path
+  const handlePathColorChange = (path: string, newColor: ColorTheme) => {
+    setColorThemesByPath((prev) => ({ ...prev, [path]: newColor }));
     if (onUpdateAllPaths) {
-      const updatedPaths: Record<string, PathTask[]> = {};
-      Object.entries(paths).forEach(([path, tasks]) => {
-        updatedPaths[path] = tasks.map(task => ({ ...task, colorTheme: newColor }));
-      });
+      const updatedPaths = { ...paths };
+      updatedPaths[path] = (paths[path] || []).map(task => ({ ...task, colorTheme: newColor }));
       onUpdateAllPaths(updatedPaths);
+    } else if (onUpdateTask) {
+      // fallback: actualiza uno por uno si no hay onUpdateAllPaths
+      (paths[path] || []).forEach((task) => {
+        onUpdateTask(path, task.id, { colorTheme: newColor });
+      });
     }
   };
 
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.title}>{title}</h2>
-      <div style={{ marginBottom: 12 }}>
-        <label>
-          <b>Color: </b>
-          <select
-            value={colorTheme}
-            onChange={handleColorChange}
-            style={{ marginLeft: 6 }}
-          >
-            {Object.keys(colorThemes).map((theme) => (
-              <option key={theme} value={theme}>
-                {colorThemeLabels[theme as ColorTheme] || theme}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
       <div className={styles.addPathRow}>
         <input
           className={styles.input}
@@ -105,6 +93,23 @@ export function PathTracker({
           Object.keys(paths).map((path) => (
             <div key={path} className={styles.pathCol}>
               <h3 className={styles.pathTitle}>{path}</h3>
+              {/* Selector de color por path */}
+              <div style={{ marginBottom: 8 }}>
+                <label>
+                  <b>Color: </b>
+                  <select
+                    value={colorThemesByPath[path] || "cyan"}
+                    onChange={(e) => handlePathColorChange(path, e.target.value as ColorTheme)}
+                    style={{ marginLeft: 6 }}
+                  >
+                    {Object.keys(colorThemes).map((theme) => (
+                      <option key={theme} value={theme}>
+                        {colorThemeLabels[theme as ColorTheme] || theme}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
               <NewNoteRow
                 title={newTitles[path] || ""}
                 content={newContents[path] || ""}

@@ -19,6 +19,16 @@ const MONTHS = [
   "Diciembre",
 ];
 
+const DAYS = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo",
+];
+
 interface AlmanaqueMensualProps {
   year: number;
   month: number; // 0-based
@@ -71,7 +81,12 @@ export function AlmanaqueMensual({
   const [showNewRow, setShowNewRow] = useState<Record<number, boolean>>({});
 
   // Días válidos para el mes
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  // Día de la semana del primer día del mes (0=Domingo, 1=Lunes,...)
+  const firstDayDate = new Date(year, month - 1, 1);
+  let firstDayOfWeek = firstDayDate.getDay(); // 0=Domingo
+  // Ajustar para que 0=Domingo pase a 6, y 1=Lunes pase a 0, etc.
+  firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
   const handleCreate = (day: number) => {
     const title = newTitles[day]?.trim();
@@ -89,7 +104,7 @@ export function AlmanaqueMensual({
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.title}>
-        {title} - {MONTHS[month]} {year}
+        {title} - {MONTHS[month-1]} {year}
       </h2>
       {/* Selector de modo y pathtracker */}
       <div style={{ marginBottom: 12 }}>
@@ -139,6 +154,17 @@ export function AlmanaqueMensual({
         className={styles.weekGrid}
         style={{ gridTemplateColumns: "repeat(7, 1fr)" }}
       >
+        {/* Fila de encabezado con los días de la semana */}
+        {DAYS.map((d) => (
+          <div key={d} className={styles.dayCol}>
+            <div className={styles.dayTitle} style={{ fontWeight: "bold", /* background: "#f5f5f5", borderBottom: "1px solid #ddd" */ }}>{d}</div>
+          </div>
+        ))}
+        {/* Días dummy para alinear el primer día del mes */}
+        {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
+          <div key={"dummy-" + idx} className={styles.dayCol} style={{ background: "#494949ff", border: "none" }} />
+        ))}
+        {/* Renderizado de los días del mes */}
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
           let items: JSX.Element[] = [];
           if (mode === "connected" && selectedPathTrackerId) {
