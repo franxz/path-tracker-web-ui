@@ -28,6 +28,7 @@ export interface VistaComponentBase {
   id: EntityId;
   type: ComponentType;
   config: Record<string, unknown>;
+  showSetup?: boolean;
 }
 
 export interface NotaVistaComponent extends VistaComponentBase {

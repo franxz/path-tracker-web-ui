@@ -120,6 +120,12 @@
   box-shadow: 5px 5px 0px #000;
 }
 
+.noteActions button:disabled {
+  color: black;
+  background-color: darkgray;
+  pointer-events: none;
+}
+
 .noteList {
   display: flex;
   flex-direction: column;

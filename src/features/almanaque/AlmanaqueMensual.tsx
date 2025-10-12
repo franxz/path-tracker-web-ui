@@ -3,6 +3,9 @@ import styles from "./Almanaque.module.css";
 import type { PathTask } from "../PathTracker/types";
 import { TaskItemWithTrack } from "../PathTracker/TaskItemWithTrack";
 import { NewNoteRow } from "../note/NewNoteRow";
+import { Modal } from "../ui/Modal";
+import type { AlmanaqueMensualVistaComponent } from "../../types/global";
+import { useActiveVistaContext } from "../vistas/hooks/useActiveVistaContext";
 
 const MONTHS = [
   "Enero",
@@ -38,12 +41,12 @@ interface AlmanaqueMensualProps {
   onRemove: (day: number, id: string) => void;
   onToggle: (day: number, id: string) => void;
   onTrackExecution: (day: number, id: string, note?: string) => void;
-  title?: string;
   availablePathTrackers?: { id: string; title: string; tasks: PathTask[] }[];
   mode?: "standalone" | "connected";
   selectedPathTrackerId?: string;
   onModeChange?: (mode: "standalone" | "connected") => void;
   onSelectedPathTrackerIdChange?: (id: string) => void;
+  widgetData: AlmanaqueMensualVistaComponent;
 }
 
 export function AlmanaqueMensual({
@@ -55,17 +58,24 @@ export function AlmanaqueMensual({
   onRemove,
   onToggle,
   onTrackExecution,
-  title = "Almanaque mensual",
   availablePathTrackers = [],
   mode: controlledMode,
   selectedPathTrackerId: controlledSelectedPathTrackerId,
   onModeChange,
   onSelectedPathTrackerIdChange,
+  widgetData,
 }: AlmanaqueMensualProps) {
-  const [internalMode, setInternalMode] = useState<"standalone" | "connected">("standalone");
-  const [internalSelectedPathTrackerId, setInternalSelectedPathTrackerId] = useState<string>("");
+  const { active, addComponent } = useActiveVistaContext();
+  const [internalMode, setInternalMode] = useState<"standalone" | "connected">(
+    "standalone"
+  );
+  const [internalSelectedPathTrackerId, setInternalSelectedPathTrackerId] =
+    useState<string>("");
   const mode = controlledMode !== undefined ? controlledMode : internalMode;
-  const selectedPathTrackerId = controlledSelectedPathTrackerId !== undefined ? controlledSelectedPathTrackerId : internalSelectedPathTrackerId;
+  const selectedPathTrackerId =
+    controlledSelectedPathTrackerId !== undefined
+      ? controlledSelectedPathTrackerId
+      : internalSelectedPathTrackerId;
 
   // Si connected, tasks = tasks del pathtracker seleccionado
   const connectedTasks = useMemo(() => {
@@ -101,55 +111,68 @@ export function AlmanaqueMensual({
     setNewContents((s) => ({ ...s, [day]: "" }));
   };
 
+  if (!active) return <p>Cargando...</p>;
+
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.title}>
-        {title} - {MONTHS[month-1]} {year}
+        {MONTHS[month - 1]} {year}
       </h2>
-      {/* Selector de modo y pathtracker */}
-      <div style={{ marginBottom: 12 }}>
-        <label style={{ marginRight: 8 }}>
-          <b>Modo:</b>
-          <select
-            value={mode}
-            onChange={(e) => {
-              const newMode = e.target.value as "standalone" | "connected";
-              if (onModeChange) {
-                onModeChange(newMode);
-              } else {
-                setInternalMode(newMode);
-              }
-            }}
-            style={{ marginLeft: 6 }}
-          >
-            <option value="standalone">Standalone</option>
-            <option value="connected">Connected</option>
-          </select>
-        </label>
-        {mode === "connected" && availablePathTrackers.length > 0 && (
-          <label style={{ marginLeft: 16 }}>
-            <b>PathTracker:</b>
+      <Modal
+        open={widgetData.showSetup || false}
+        onClose={() => {
+          addComponent(active.id, {
+            ...widgetData,
+            showSetup: false,
+          });
+        }}
+      >
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ marginRight: 8 }}>
+            <b>Modo:</b>
             <select
-              value={selectedPathTrackerId}
+              value={mode}
               onChange={(e) => {
-                if (onSelectedPathTrackerIdChange) {
-                  onSelectedPathTrackerIdChange(e.target.value);
+                const newMode = e.target.value as "standalone" | "connected";
+                if (onModeChange) {
+                  onModeChange(newMode);
                 } else {
-                  setInternalSelectedPathTrackerId(e.target.value);
+                  setInternalMode(newMode);
                 }
               }}
               style={{ marginLeft: 6 }}
             >
-              <option value="">-- Selecciona --</option>
-              {availablePathTrackers.map((pt) => (
-                <option key={pt.id} value={pt.id}>
-                  {pt.title}
-                </option>
-              ))}
+              <option value="standalone">Standalone</option>
+              <option value="connected">Connected</option>
             </select>
           </label>
-        )}
-      </div>
+          {mode === "connected" && availablePathTrackers.length > 0 && (
+            <label style={{ marginLeft: 16 }}>
+              <b>PathTracker:</b>
+              <select
+                value={selectedPathTrackerId}
+                onChange={(e) => {
+                  if (onSelectedPathTrackerIdChange) {
+                    onSelectedPathTrackerIdChange(e.target.value);
+                  } else {
+                    setInternalSelectedPathTrackerId(e.target.value);
+                  }
+                }}
+                style={{ marginLeft: 6 }}
+              >
+                <option value="">-- Selecciona --</option>
+                {availablePathTrackers.map((pt) => (
+                  <option key={pt.id} value={pt.id}>
+                    {pt.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+      </Modal>
+      {/* Selector de modo y pathtracker */}
+
       <div
         className={styles.weekGrid}
         style={{ gridTemplateColumns: "repeat(7, 1fr)" }}
@@ -157,12 +180,24 @@ export function AlmanaqueMensual({
         {/* Fila de encabezado con los días de la semana */}
         {DAYS.map((d) => (
           <div key={d} className={styles.dayCol}>
-            <div className={styles.dayTitle} style={{ fontWeight: "bold", /* background: "#f5f5f5", borderBottom: "1px solid #ddd" */ }}>{d}</div>
+            <div
+              className={styles.dayTitle}
+              style={{
+                fontWeight:
+                  "bold" /* background: "#f5f5f5", borderBottom: "1px solid #ddd" */,
+              }}
+            >
+              {d}
+            </div>
           </div>
         ))}
         {/* Días dummy para alinear el primer día del mes */}
         {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
-          <div key={"dummy-" + idx} className={styles.dayCol} style={{ background: "#494949ff", border: "none" }} />
+          <div
+            key={"dummy-" + idx}
+            className={styles.dayCol}
+            style={{ background: "#494949ff", border: "none" }}
+          />
         ))}
         {/* Renderizado de los días del mes */}
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
@@ -226,8 +261,8 @@ export function AlmanaqueMensual({
           return (
             <div key={day} className={styles.dayCol}>
               <h3 className={styles.dayTitle}>Día {day}</h3>
-              {mode === "standalone" && (
-                showNewRow[day] ? (
+              {mode === "standalone" &&
+                (showNewRow[day] ? (
                   <div style={{ position: "relative" }}>
                     <button
                       type="button"
@@ -247,9 +282,11 @@ export function AlmanaqueMensual({
                         border: "none",
                         fontSize: 18,
                         cursor: "pointer",
-                        color: "red"
+                        color: "red",
                       }}
-                      onClick={() => setShowNewRow((s) => ({ ...s, [day]: false }))}
+                      onClick={() =>
+                        setShowNewRow((s) => ({ ...s, [day]: false }))
+                      }
                     >
                       ×
                     </button>
@@ -272,12 +309,13 @@ export function AlmanaqueMensual({
                   <button
                     className={styles.addBtn}
                     style={{ marginBottom: 6 }}
-                    onClick={() => setShowNewRow((s) => ({ ...s, [day]: true }))}
+                    onClick={() =>
+                      setShowNewRow((s) => ({ ...s, [day]: true }))
+                    }
                   >
                     +
                   </button>
-                )
-              )}
+                ))}
               {items}
             </div>
           );

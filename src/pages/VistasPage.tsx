@@ -1,24 +1,35 @@
-import React from "react";
-import { VistasManager } from "../features/vistas";
+import React, { useState } from "react";
 import TopBar from "../features/TopBar/TopBar";
 import PageTemplate from "./PageTemplate";
+import { NavBar } from "../features/vistas/components/NavBar";
+import { VistasManager } from "../features/vistas/components/VistasManager";
+import { ActiveVistaProvider } from "../features/vistas/hooks/useActiveVistaContext";
+import { Modal } from "../features/ui/Modal";
+import { VistaControls } from "../features/vistas/components/VistaControls/VistaControls";
 
 export const VistasPage: React.FC = () => {
+  const [openControls, setOpenControls] = useState(false);
+
   return (
-    <PageTemplate
-      topBar={<TopBar />}
-      content={
-        <div
-          style={{
-            border: "1px solid #f0f0f0",
-            borderRadius: 8,
-            overflow: "hidden",
-          }}
-        >
-          <VistasManager />
-        </div>
-      }
-    />
+    <ActiveVistaProvider>
+      <PageTemplate
+        topBar={
+          <TopBar
+            content={<NavBar />}
+            onConfigClick={() => setOpenControls(true)}
+          />
+        }
+        content={<VistasManager />}
+      />
+      <Modal
+        open={openControls}
+        onClose={() => {
+          setOpenControls(false);
+        }}
+      >
+        <VistaControls />
+      </Modal>
+    </ActiveVistaProvider>
   );
 };
 

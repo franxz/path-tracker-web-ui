@@ -1,21 +1,19 @@
-import React from 'react';
-import styles from './NavBar.module.css';
-import type { Vista } from '../types';
+import React from "react";
+import styles from "./NavBar.module.css";
+import { useActiveVistaContext } from "../hooks/useActiveVistaContext";
 
-interface Props {
-  vistas: Vista[];
-  activeId?: string | null;
-  onSelect: (id: string) => void;
-}
+interface NavBarProps {}
 
-export const NavBar: React.FC<Props> = ({ vistas, activeId, onSelect }) => {
+export const NavBar: React.FC<NavBarProps> = ({}) => {
+  const { vistas, activeId, setActiveId } = useActiveVistaContext();
+
   return (
     <nav className={styles.container} aria-label="vistas-navbar">
       {vistas.map((v) => (
         <button
           key={v.id}
-          className={`${styles.button} ${v.id === activeId ? 'active' : ''}`}
-          onClick={() => onSelect(v.id)}
+          className={`${styles.button} ${v.id === activeId ? "active" : ""}`}
+          onClick={() => setActiveId(v.id)}
           aria-pressed={v.id === activeId}
         >
           {v.name}

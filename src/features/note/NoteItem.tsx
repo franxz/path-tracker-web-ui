@@ -21,10 +21,13 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   colorTheme = "cyan",
 }) => {
   const theme = colorThemes[colorTheme] || colorThemes.cyan;
+
   return (
     <div className={styles.note}>
-      <div className={styles.noteHeader} style={{ background: theme.light }}>
-        <span className={styles.noteTitle}>{note.title}</span>
+      <div className={styles.noteHeader} style={{ background: note.completed ? theme.dark : theme.light }}>
+        <span className={styles.noteTitle}>
+          {note.completed ? <s>{note.title}</s> : note.title}
+        </span>
         {!hideControls && (
           <div
             className={styles.noteActions}
@@ -47,6 +50,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
                   const t = prompt("Nuevo título", note.title);
                   if (t) onUpdate(note.id, { title: t });
                 }}
+                disabled={note.completed}
               >
                 Editar
               </button>
