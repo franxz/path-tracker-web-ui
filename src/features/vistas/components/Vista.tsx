@@ -43,12 +43,13 @@ export const Vista: React.FC<VistaProps> = ({}) => {
         {widgets.map((widget) => (
           <Window
             title={widget.config.title}
-            onClose={() => {
+            onMaximize={() => {
               addComponent(active.id, {
                 ...widget,
                 showSetup: true,
               });
             }}
+            onClose={() => alert("eliminar")}
             onMinimize={() => alert("minimizar")}
           >
             <VistaComponentRenderer key={widget.id} comp={{ ...widget }} />

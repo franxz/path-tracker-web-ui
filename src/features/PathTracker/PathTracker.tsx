@@ -6,11 +6,17 @@ import type { PathTask } from "./types";
 import { TaskItemWithTrack } from "./TaskItemWithTrack";
 
 import { NewNoteRow } from "../note/NewNoteRow";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/buttons/Button/Button";
+import Flex from "../ui/Flex/Flex";
 
 interface PathTrackerProps {
   paths: Record<string, PathTask[]>;
   onCreatePath: (path: string) => void;
-  onCreateTask: (path: string, task: Omit<PathTask, "id" | "executions">) => void;
+  onCreateTask: (
+    path: string,
+    task: Omit<PathTask, "id" | "executions">
+  ) => void;
   onUpdateTask: (path: string, id: string, changes: Partial<PathTask>) => void;
   onUpdateAllPaths?: (paths: Record<string, PathTask[]>) => void;
   onRemoveTask: (path: string, id: string) => void;
@@ -31,10 +37,15 @@ export function PathTracker({
   title = "Path Tracker",
 }: PathTrackerProps) {
   // Estado de color por path
-  const [colorThemesByPath, setColorThemesByPath] = useState<Record<string, ColorTheme>>({});
+  const [colorThemesByPath, setColorThemesByPath] = useState<
+    Record<string, ColorTheme>
+  >({});
   const [newPath, setNewPath] = useState("");
   const [newTitles, setNewTitles] = useState<Record<string, string>>({});
   const [newContents, setNewContents] = useState<Record<string, string>>({});
+
+  const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState<Record<string, boolean>>({});
 
   const handleCreatePath = () => {
     const name = newPath.trim();
@@ -62,7 +73,10 @@ export function PathTracker({
     setColorThemesByPath((prev) => ({ ...prev, [path]: newColor }));
     if (onUpdateAllPaths) {
       const updatedPaths = { ...paths };
-      updatedPaths[path] = (paths[path] || []).map(task => ({ ...task, colorTheme: newColor }));
+      updatedPaths[path] = (paths[path] || []).map((task) => ({
+        ...task,
+        colorTheme: newColor,
+      }));
       onUpdateAllPaths(updatedPaths);
     } else if (onUpdateTask) {
       // fallback: actualiza uno por uno si no hay onUpdateAllPaths
@@ -73,50 +87,84 @@ export function PathTracker({
   };
 
   return (
-    <div className={styles.wrapper}>
-      <h2 className={styles.title}>{title}</h2>
-      <div className={styles.addPathRow}>
-        <input
-          className={styles.input}
-          placeholder="Nuevo Path"
-          value={newPath}
-          onChange={(e) => setNewPath(e.target.value)}
-        />
-        <button className={styles.button} onClick={handleCreatePath}>
-          Crear Path
-        </button>
-      </div>
+    <Flex flexDirection="column">
+      <Button
+        onClick={() => {
+          setShowModal(true);
+        }}
+        size="sm"
+      >
+        ➕
+      </Button>
+      <Modal open={showModal} onClose={() => setShowModal(false)}>
+        <div className={styles.addPathRow}>
+          <input
+            className={styles.input}
+            placeholder="Nuevo Path"
+            value={newPath}
+            onChange={(e) => setNewPath(e.target.value)}
+          />
+          <button className={styles.button} onClick={handleCreatePath}>
+            Crear Path
+          </button>
+        </div>
+      </Modal>
       <div className={styles.pathsGrid}>
         {Object.keys(paths).length === 0 ? (
           <p className={styles.empty}>No hay paths</p>
         ) : (
           Object.keys(paths).map((path) => (
             <div key={path} className={styles.pathCol}>
-              <h3 className={styles.pathTitle}>{path}</h3>
-              {/* Selector de color por path */}
-              <div style={{ marginBottom: 8 }}>
-                <label>
-                  <b>Color: </b>
-                  <select
-                    value={colorThemesByPath[path] || "cyan"}
-                    onChange={(e) => handlePathColorChange(path, e.target.value as ColorTheme)}
-                    style={{ marginLeft: 6 }}
-                  >
-                    {Object.keys(colorThemes).map((theme) => (
-                      <option key={theme} value={theme}>
-                        {colorThemeLabels[theme as ColorTheme] || theme}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <h3 className={styles.pathTitle}>{path}</h3>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setShowModal2({ ...showModal2, [path]: true });
+                  }}
+                >
+                  ⚙️
+                </Button>
               </div>
-              <NewNoteRow
-                title={newTitles[path] || ""}
-                content={newContents[path] || ""}
-                onTitleChange={(v) => setNewTitles((s) => ({ ...s, [path]: v }))}
-                onContentChange={(v) => setNewContents((s) => ({ ...s, [path]: v }))}
-                onSubmit={() => handleCreateTask(path)}
-              />
+              <Modal
+                open={showModal2[path]}
+                onClose={() => setShowModal2({ ...showModal2, [path]: false })}
+              >
+                {/* Selector de color por path */}
+                <div style={{ marginBottom: 8 }}>
+                  <label>
+                    <b>Color: </b>
+                    <select
+                      value={colorThemesByPath[path] || "cyan"}
+                      onChange={(e) =>
+                        handlePathColorChange(
+                          path,
+                          e.target.value as ColorTheme
+                        )
+                      }
+                      style={{ marginLeft: 6 }}
+                    >
+                      {Object.keys(colorThemes).map((theme) => (
+                        <option key={theme} value={theme}>
+                          {colorThemeLabels[theme as ColorTheme] || theme}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <NewNoteRow
+                  title={newTitles[path] || ""}
+                  content={newContents[path] || ""}
+                  onTitleChange={(v) =>
+                    setNewTitles((s) => ({ ...s, [path]: v }))
+                  }
+                  onContentChange={(v) =>
+                    setNewContents((s) => ({ ...s, [path]: v }))
+                  }
+                  onSubmit={() => handleCreateTask(path)}
+                />
+              </Modal>
+
               {(paths[path]?.length ?? 0) === 0 ? (
                 <p className={styles.empty}>Sin tareas</p>
               ) : (
@@ -130,6 +178,7 @@ export function PathTracker({
                     onToggle={onToggleTask}
                     onTrackExecution={onTrackExecution}
                     showExecutions={true}
+                    showPlanningControls={true}
                   />
                 ))
               )}
@@ -137,6 +186,6 @@ export function PathTracker({
           ))
         )}
       </div>
-    </div>
+    </Flex>
   );
 }

@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import type { PathTask } from "./types";
 import { NoteItem } from "../note/NoteItem";
 import styles from "./PathTracker.module.css";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/buttons/Button/Button";
 
 interface TaskItemWithTrackProps {
   task: PathTask;
@@ -24,6 +26,7 @@ export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
   showPlanningControls = true,
 }) => {
   const [showDateInput, setShowDateInput] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const handlePlan = () => {
@@ -59,11 +62,17 @@ export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
         onRemove={() => onRemove(path, task.id)}
         onUpdate={(_id, changes) => onUpdate(path, task.id, changes)}
         onToggle={() => onToggle(path, task.id)}
-        hideControls={showPlanningControls === false}
+        showControls={showExecutions}
+        //hideControls={false && showPlanningControls === false}
         colorTheme={task.colorTheme}
       />
       {showPlanningControls && (
-        <div className={styles.trackRow}>
+        <Button size="sm" onClick={() => setShowOptions(true)}>
+          ⚙️
+        </Button>
+      )}
+      <Modal open={showOptions} onClose={() => setShowOptions(false)}>
+        <div className={styles.trackRow} style={{ padding: "32px" }}>
           <button
             className={styles.button}
             onClick={() => {
@@ -95,10 +104,7 @@ export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
             />
           )}
         </div>
-      )}
-      {showPlanningControls &&
-        Array.isArray(task.plannedDays) &&
-        task.plannedDays.length > 0 && (
+        {Array.isArray(task.plannedDays) && task.plannedDays.length > 0 && (
           <ul
             className={styles.execList}
             style={{ marginTop: 4, background: "#eef" }}
@@ -129,15 +135,16 @@ export const TaskItemWithTrack: React.FC<TaskItemWithTrackProps> = ({
             ))}
           </ul>
         )}
-      {showExecutions && task.executions && task.executions.length > 0 && (
-        <ul className={styles.execList}>
-          {task.executions.map((e, i) => (
-            <li key={i} style={{ color: "#336" }}>
-              {new Date(e.date).toLocaleString()} {e.notes && `- ${e.notes}`}
-            </li>
-          ))}
-        </ul>
-      )}
+        {task.executions && task.executions.length > 0 && (
+          <ul className={styles.execList}>
+            {task.executions.map((e, i) => (
+              <li key={i} style={{ color: "#336" }}>
+                {new Date(e.date).toLocaleString()} {e.notes && `- ${e.notes}`}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
     </div>
   );
 };

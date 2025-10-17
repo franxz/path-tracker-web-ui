@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Note } from "./types";
 import styles from "./NoteList.module.css";
 import type { ColorTheme } from "../../types/global";
 import { colorThemes } from "../../const/global";
+import { Button } from "../ui/buttons/Button/Button";
 
 interface NoteItemProps {
   note: Note;
   onRemove: (id: string) => void;
   onUpdate: (id: string, changes: Partial<Note>) => void;
   onToggle: (id: string) => void;
-  hideControls?: boolean;
+  showControls?: boolean;
   colorTheme?: ColorTheme;
 }
 export const NoteItem: React.FC<NoteItemProps> = ({
@@ -17,18 +18,32 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   onRemove,
   onUpdate,
   onToggle,
-  hideControls = false,
+  showControls = true,
   colorTheme = "cyan",
 }) => {
   const theme = colorThemes[colorTheme] || colorThemes.cyan;
+  const [visionControl, setVisionControl] = useState(false);
 
   return (
     <div className={styles.note}>
-      <div className={styles.noteHeader} style={{ background: note.completed ? theme.dark : theme.light }}>
+      <div
+        className={styles.noteHeader}
+        style={{ background: note.completed ? theme.dark : theme.light }}
+      >
         <span className={styles.noteTitle}>
           {note.completed ? <s>{note.title}</s> : note.title}
         </span>
-        {!hideControls && (
+        {showControls && (
+          <Button
+            onClick={() => {
+              setVisionControl(!visionControl);
+            }}
+            size="sm"
+          >
+            👁️
+          </Button>
+        )}
+        {visionControl && (
           <div
             className={styles.noteActions}
             style={{ background: theme.dark }}

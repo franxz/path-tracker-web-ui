@@ -14,7 +14,7 @@
 
 .titleBar {
   font-family: "Courier New", monospace;
-  background: linear-gradient(90deg, #ff0050, #ffcc00, #00e0ff);
+  background: linear-gradient(90deg, #26b100, #ffcc00, #f23202);
   padding: 6px 10px;
   display: flex;
   justify-content: space-between;

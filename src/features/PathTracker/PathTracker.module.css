@@ -1,21 +1,7 @@
 .wrapper {
-  background: #e0ffe0;
-  border: 3px solid #008000;
-  box-shadow: 4px 4px 0px #080;
   padding: 12px;
-  margin: 16px 0;
-  font-family: "Arial Black", sans-serif;
-  color: #003300;
-  container-type: inline-size;
-}
-
-.title {
-  margin: 0 0 12px 0;
-  font-size: 20px;
-  background: #baffba;
-  padding: 4px 8px;
-  border: 2px solid #008000;
-  display: inline-block;
+  margin: 0;
+  color: black;
 }
 
 .addPathRow {
@@ -49,13 +35,14 @@
 }
 
 .pathsGrid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
 .pathCol {
-  background: #fff;
+  /* background: #fff; */
   border-radius: 8px;
   border: 2px solid #008000;
   padding: 8px;

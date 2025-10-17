@@ -6,6 +6,8 @@ import { NewNoteRow } from "../note/NewNoteRow";
 import { Modal } from "../ui/Modal";
 import type { AlmanaqueMensualVistaComponent } from "../../types/global";
 import { useActiveVistaContext } from "../vistas/hooks/useActiveVistaContext";
+import Flex from "../ui/Flex/Flex";
+import { Text } from "../ui/Text/Text";
 
 const MONTHS = [
   "Enero",
@@ -115,10 +117,17 @@ export function AlmanaqueMensual({
 
   return (
     <div className={styles.wrapper}>
-      <h2 className={styles.title}>
+      <Text
+        as="h2"
+        className={styles.title}
+        variant="title"
+        weight="bold"
+        style={{ textAlign: "center", padding: "16px", fontSize: "32px" }}
+      >
         {MONTHS[month - 1]} {year}
-      </h2>
+      </Text>
       <Modal
+        title="Config"
         open={widgetData.showSetup || false}
         onClose={() => {
           addComponent(active.id, {
@@ -127,9 +136,11 @@ export function AlmanaqueMensual({
           });
         }}
       >
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ marginRight: 8 }}>
-            <b>Modo:</b>
+        <Flex flexDirection="column" alignItems="start">
+          <label>
+            <Text as="span" style={{ color: "black" }}>
+              Modo:
+            </Text>
             <select
               value={mode}
               onChange={(e) => {
@@ -147,8 +158,10 @@ export function AlmanaqueMensual({
             </select>
           </label>
           {mode === "connected" && availablePathTrackers.length > 0 && (
-            <label style={{ marginLeft: 16 }}>
-              <b>PathTracker:</b>
+            <label>
+              <Text as="span" style={{ color: "black" }}>
+                PathTracker:
+              </Text>
               <select
                 value={selectedPathTrackerId}
                 onChange={(e) => {
@@ -169,7 +182,7 @@ export function AlmanaqueMensual({
               </select>
             </label>
           )}
-        </div>
+        </Flex>
       </Modal>
       {/* Selector de modo y pathtracker */}
 
@@ -187,7 +200,14 @@ export function AlmanaqueMensual({
                   "bold" /* background: "#f5f5f5", borderBottom: "1px solid #ddd" */,
               }}
             >
-              {d}
+              <Text
+                as="h3"
+                variant="title"
+                className={styles.dayTitle}
+                style={{ textAlign: "center", color: "rgb(255, 224, 100)" }}
+              >
+                {d}
+              </Text>
             </div>
           </div>
         ))}
@@ -196,11 +216,11 @@ export function AlmanaqueMensual({
           <div
             key={"dummy-" + idx}
             className={styles.dayCol}
-            style={{ background: "#494949ff", border: "none" }}
+            style={{ background: "transparent", border: "none" }}
           />
         ))}
         {/* Renderizado de los días del mes */}
-        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day, i) => {
           let items: JSX.Element[] = [];
           if (mode === "connected" && selectedPathTrackerId) {
             // Mostrar un item por cada planeación de cada task
@@ -230,9 +250,15 @@ export function AlmanaqueMensual({
               planned.length > 0
                 ? planned
                 : [
-                    <p className={styles.empty} key="empty">
+                    <Text
+                      as="h3"
+                      variant="subtitle"
+                      className={styles.dayTitle}
+                      style={{ textAlign: "center", color: "#666" }}
+                      key="empty"
+                    >
                       Sin tareas
-                    </p>,
+                    </Text>,
                   ];
           } else {
             items =
@@ -259,8 +285,30 @@ export function AlmanaqueMensual({
                   ));
           }
           return (
-            <div key={day} className={styles.dayCol}>
-              <h3 className={styles.dayTitle}>Día {day}</h3>
+            <div
+              key={day}
+              className={styles.dayCol}
+              {...(day === new Date().getDate() && {
+                style: { backgroundColor: "#82a6a6ff" },
+              })}
+              {...(!((i + 1 + firstDayOfWeek) % 7) && {
+                style: { backgroundColor: "#4c4747ff" },
+              })}
+              {...(!((i + 1 + firstDayOfWeek - Math.floor(i / 7)) % 6) && {
+                style: { backgroundColor: "#4c4747ff" },
+              })}
+            >
+              <Text
+                as="h3"
+                variant="subtitle"
+                className={styles.dayTitle}
+                style={{ textAlign: "center" }}
+                {...(day === new Date().getDate() && {
+                  style: { color: "black", textAlign: "center" },
+                })}
+              >
+                Día {day}
+              </Text>
               {mode === "standalone" &&
                 (showNewRow[day] ? (
                   <div style={{ position: "relative" }}>
