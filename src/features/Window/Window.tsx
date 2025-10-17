@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./Window.module.css";
 import { Button } from "../ui/buttons/Button/Button";
+import { Text } from "../ui/Text/Text";
 
 interface WindowProps {
   title?: string;
@@ -22,7 +23,15 @@ export const Window: React.FC<WindowProps> = ({
   return (
     <div className={styles.window}>
       <div className={styles.titleBar}>
-        <span className={styles.title}>{title}</span>
+        <Text
+          className={styles.title}
+          variant="subtitle"
+          weight="bold"
+          style={{ fontFamily: "DynaPuff", color: "rgba(0,0,0,0.85)" }}
+        >
+          {title}
+        </Text>
+        {/* <span className={styles.title}>{title}</span> */}
         <div className={styles.controls}>
           {/* <button
             aria-label="Minimizar"

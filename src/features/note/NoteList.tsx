@@ -38,7 +38,7 @@ export function NoteList({
 
   return (
     <div className={styles.wrapper}>
-      <h2 className={styles.title}>{title}</h2>
+      {/* <h2 className={styles.title}>{title}</h2> */}
       <NewNoteRow
         title={newTitle}
         content={newContent}
